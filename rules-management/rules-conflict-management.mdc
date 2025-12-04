@@ -10,7 +10,7 @@ alwaysApply: true
 
 ### 规则文件分类
 
-项目 `.cursor/rules/` 目录中的规则文件分为三类：
+项目 `.trae/rules/` 目录中的规则文件分为三类：
 
 1. **本项目规则文件**：从规则库导入的项目类型规则文件（如 `flutter-rules.mdc`、`android-rules.mdc`）
 2. **通用规则文件**：从规则库导入的通用规则文件（如 `user-base-rule.mdc`、`git-automation.mdc`）
@@ -26,7 +26,7 @@ alwaysApply: true
 
 ### 第一步：识别现有规则文件
 
-在导入或更新规则前，必须先扫描 `.cursor/rules/` 目录：
+在导入或更新规则前，必须先扫描 `.trae/rules/` 目录：
 
 1. **列出所有 `.mdc` 文件**
    - 获取目录中所有 `.mdc` 文件的文件名和路径

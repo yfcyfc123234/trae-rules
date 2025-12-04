@@ -28,34 +28,34 @@ alwaysApply: true
 ### ✅ 必须执行的操作
 
 1. **从本地缓存复制规则文件（必须使用文件系统复制命令）**：
-   - ✅ **必须**使用 `run_terminal_cmd` 执行文件系统复制命令直接复制文件
+   - ✅ **必须**使用 `run_command` 执行文件系统复制命令直接复制文件
    - ✅ **必须根据操作系统选择正确的命令**：
      - **Windows (PowerShell)**：
        ```powershell
        # 复制单个文件
-       Copy-Item "C:\Users\Administrator\Desktop\cursor-rules\common-project-rules\user-base-rule.mdc" -Destination ".cursor\rules\user-base-rule.mdc"
+       Copy-Item "C:\Users\Administrator\Desktop\trae-rules\common-project-rules\user-base-rule.mdc" -Destination ".trae\rules\user-base-rule.mdc"
        
        # 批量复制多个文件（推荐）
-       Get-ChildItem "C:\Users\Administrator\Desktop\cursor-rules\common-project-rules\*.mdc" | ForEach-Object {
-           Copy-Item $_.FullName -Destination ".cursor\rules\$($_.Name)"
+       Get-ChildItem "C:\Users\Administrator\Desktop\trae-rules\common-project-rules\*.mdc" | ForEach-Object {
+           Copy-Item $_.FullName -Destination ".trae\rules\$($_.Name)"
        }
        ```
      - **Linux/Mac (Bash)**：
        ```bash
        # 复制单个文件
-       cp "/path/to/source/file.mdc" ".cursor/rules/file.mdc"
+       cp "/path/to/source/file.mdc" ".trae/rules/file.mdc"
        
        # 批量复制多个文件（推荐）
-       cp /path/to/source/*.mdc .cursor/rules/
+       cp /path/to/source/*.mdc .trae/rules/
        ```
    - ✅ **必须**直接复制文件，不在界面显示文件内容
    - ✅ **必须**保持文件内容完全一致
 
 2. **从 GitHub 下载规则文件（必须使用 curl 的 -o 参数）**：
-   - ✅ **必须**使用 `run_terminal_cmd` 执行 `curl -L "{完整URL}" -o "{目标文件路径}"` 命令直接下载并保存文件：
+   - ✅ **必须**使用 `run_command` 执行 `curl -L "{完整URL}" -o "{目标文件路径}"` 命令直接下载并保存文件：
      ```bash
      # 跨平台命令（Windows/Linux/Mac 都支持）
-     curl -L "https://raw.githubusercontent.com/{owner}/{repo}/{branch}/common-project-rules/user-base-rule.mdc" -o ".cursor/rules/user-base-rule.mdc"
+     curl -L "https://raw.githubusercontent.com/{owner}/{repo}/{branch}/common-project-rules/user-base-rule.mdc" -o ".trae/rules/user-base-rule.mdc"
      ```
    - ✅ **必须**使用 `-o` 参数直接保存到目标文件，不在界面显示文件内容
    - ✅ **必须**保持文件内容完全一致
@@ -66,8 +66,8 @@ alwaysApply: true
    步骤 1: 使用 list_dir 扫描源目录，获取所有 .mdc 文件列表
    步骤 2: 检测操作系统类型（Windows/Linux/Mac）
    步骤 3: 对于每个文件：
-            - 从本地缓存：run_terminal_cmd(文件系统复制命令) → 直接复制文件
-            - 从 GitHub：run_terminal_cmd(curl -L URL -o 目标路径) → 直接下载并保存文件
+            - 从本地缓存：run_command(文件系统复制命令) → 直接复制文件
+- 从 GitHub：run_command(curl -L URL -o 目标路径) → 直接下载并保存文件
    步骤 4: 验证文件是否成功复制（使用 list_dir 检查目标目录）
    ```
 
@@ -83,7 +83,7 @@ alwaysApply: true
 
 ### 自动触发
 
-- **打开项目时**：检测到 `.cursor/rules/` 目录不存在或为空时，自动提示用户是否导入规则
+- **打开项目时**：检测到 `.trae/rules/` 目录不存在或为空时，自动提示用户是否导入规则
 - **提示模式**：自动检测项目类型后，提示用户确认是否导入规则
 
 ### 手动触发
@@ -112,7 +112,7 @@ alwaysApply: true
 
 ### 触发检测逻辑
 
-1. **检查 `.cursor/rules/` 目录**
+1. **检查 `.trae/rules/` 目录**
    - **如果目录不存在或为空**：
      - 无论用户说"导入规则"还是"更新规则"，都执行**导入规则流程**（首次导入）
      - 因为项目没有规则文件，无法执行更新，需要先导入
@@ -143,7 +143,7 @@ alwaysApply: true
    - 根据检测到的项目类型确定需要更新的项目规则文件
 
 2. **执行冲突检测**（参考 `rules-management/rules-conflict-management.mdc`）
-   - 扫描 `.cursor/rules/` 目录中的所有规则文件
+   - 扫描 `.trae/rules/` 目录中的所有规则文件
    - 识别文件类型：本项目规则、通用规则、用户自定义规则
    - **用户自定义规则文件绝对不触碰**
    - **检测项目类型是否变化**：如果检测到的项目类型与现有项目规则不匹配，需要更新项目规则
@@ -222,10 +222,10 @@ alwaysApply: true
 
 ### 默认配置
 
-- **本地缓存路径**：`C:\Users\Administrator\Desktop\cursor-rules`
-- **GitHub 仓库**：`https://github.com/yfcyfc123234/cursor-rules`
+- **本地缓存路径**：`C:\Users\Administrator\Desktop\trae-rules`
+- **GitHub 仓库**：`https://github.com/yfcyfc123234/trae-rules`
 - **默认分支**：`main`
-- **Raw Content URL**：`https://raw.githubusercontent.com/yfcyfc123234/cursor-rules/main/`
+- **Raw Content URL**：`https://raw.githubusercontent.com/yfcyfc123234/trae-rules/main/`
 
 ### 配置检测和用户提示
 
@@ -234,7 +234,7 @@ alwaysApply: true
 1. **检测本地缓存路径**
    - 检查默认本地缓存路径是否存在
    - 如果路径不存在或无法访问：
-     - 提示用户："⚠️ 本地缓存路径不存在或无法访问：`C:\Users\Administrator\Desktop\cursor-rules`"
+     - 提示用户："⚠️ 本地缓存路径不存在或无法访问：`C:\Users\Administrator\Desktop\trae-rules`"
      - 询问用户："请输入正确的本地缓存路径，或按 Enter 跳过本地缓存（将仅从 GitHub 拉取）"
      - 验证用户输入的路径是否有效
      - 如果用户跳过，仅使用 GitHub 作为规则来源
@@ -242,7 +242,7 @@ alwaysApply: true
 2. **检测 GitHub 仓库**
    - 尝试访问默认 GitHub 仓库
    - 如果访问失败（网络错误、仓库不存在等）：
-     - 提示用户："⚠️ 无法访问 GitHub 仓库：`https://github.com/yfcyfc123234/cursor-rules`"
+     - 提示用户："⚠️ 无法访问 GitHub 仓库：`https://github.com/yfcyfc123234/trae-rules`"
      - 询问用户："请输入正确的 GitHub 仓库地址（格式：owner/repo 或完整 URL），或按 Enter 跳过 GitHub（将仅使用本地缓存）"
      - 验证用户输入的仓库地址格式：
        - 支持格式：`owner/repo` 或 `https://github.com/owner/repo`
@@ -251,7 +251,7 @@ alwaysApply: true
 
 3. **配置验证和降级策略**
    - 如果两者都不可用，执行降级策略：
-     - 尝试从默认 GitHub 仓库（`https://github.com/yfcyfc123234/cursor-rules`）下载规则文件到本地缓存
+     - 尝试从默认 GitHub 仓库（`https://github.com/yfcyfc123234/trae-rules`）下载规则文件到本地缓存
      - 如果用户提供了本地缓存路径（即使路径不存在），尝试创建目录并下载文件
      - 如果用户未提供本地缓存路径，使用默认路径并尝试创建目录
      - 下载成功后，使用本地缓存继续执行规则导入
@@ -273,9 +273,9 @@ alwaysApply: true
 
 4. **降级策略：自动下载到本地缓存**
    - 当用户既没有本地缓存，也没有提供 GitHub 地址时：
-     - 尝试从默认 GitHub 仓库（`https://github.com/yfcyfc123234/cursor-rules`）下载规则文件
+     - 尝试从默认 GitHub 仓库（`https://github.com/yfcyfc123234/trae-rules`）下载规则文件
      - 下载到用户指定的本地缓存路径（如果用户提供了路径）
-     - 如果用户未提供路径，使用默认路径：`C:\Users\Administrator\Desktop\cursor-rules`
+     - 如果用户未提供路径，使用默认路径：`C:\Users\Administrator\Desktop\trae-rules`
      - 如果路径不存在，尝试创建目录
      - 下载所有通用规则和项目规则文件
      - 如果下载成功，使用本地缓存继续执行
@@ -288,12 +288,12 @@ alwaysApply: true
 在执行规则导入时，**必须使用文件系统复制命令**，而不是读取后写入：
 
 1. **从本地缓存拉取（必须使用文件系统复制命令）**：
-   - ✅ **Windows**: 使用 `run_terminal_cmd` 执行 `Copy-Item "源路径" -Destination "目标路径"`
-   - ✅ **Linux/Mac**: 使用 `run_terminal_cmd` 执行 `cp "源路径" "目标路径"`
+   - ✅ **Windows**: 使用 `run_command` 执行 `Copy-Item "源路径" -Destination "目标路径"`
+- ✅ **Linux/Mac**: 使用 `run_command` 执行 `cp "源路径" "目标路径"`
    - ❌ **绝对禁止**使用 `read_file` + `write`（会在界面显示大量内容）
 
 2. **从 GitHub 拉取（必须使用 curl 的 -o 参数）**：
-   - ✅ 使用 `run_terminal_cmd` 执行 `curl -L "{URL}" -o "{目标路径}"` 命令直接下载并保存
+   - ✅ 使用 `run_command` 执行 `curl -L "{URL}" -o "{目标路径}"` 命令直接下载并保存
    - ✅ **跨平台命令**：`curl -L "URL" -o "目标路径"`（Windows/Linux/Mac 都支持）
    - ❌ **绝对禁止**使用 `curl` 下载后再用 `write` 写入（会在界面显示文件内容）
 
@@ -389,7 +389,7 @@ alwaysApply: true
      - Java 项目 → `java-rules.mdc`
 
 3. **冲突处理**
-   - 检查 `.cursor/rules/` 目录中是否已存在同名文件
+   - 检查 `.trae/rules/` 目录中是否已存在同名文件
    - 如果存在，使用递增后缀：
      - 如果已有 `android-rules.mdc`，使用 `android-rules2.mdc`
      - 如果已有 `android-rules.mdc` 和 `android-rules2.mdc`，使用 `android-rules3.mdc`
@@ -398,7 +398,7 @@ alwaysApply: true
 ### 步骤 6：保存到项目
 
 1. **创建目录**
-   - 在项目根目录创建 `.cursor/rules/` 目录（如果不存在）
+   - 在项目根目录创建 `.trae/rules/` 目录（如果不存在）
    - 使用 `list_dir` 检查目录是否存在，不存在则创建
 
 2. **获取需要导入的文件列表（关键步骤）**
@@ -410,18 +410,18 @@ alwaysApply: true
 3. **保存文件（关键步骤，必须严格遵守）**
    - **从本地缓存拉取时（必须使用文件系统复制命令）**：
      - 对于 `list_dir` 获取的每个 `.mdc` 文件：
-       - ✅ **必须**使用 `run_terminal_cmd` 执行文件系统复制命令直接复制文件
+       - ✅ **必须**使用 `run_command` 执行文件系统复制命令直接复制文件
        - ✅ **Windows (PowerShell)**：
          ```powershell
-         Copy-Item "C:\Users\Administrator\Desktop\cursor-rules\common-project-rules\{文件名}.mdc" -Destination ".cursor\rules\{文件名}.mdc"
+         Copy-Item "C:\Users\Administrator\Desktop\trae-rules\common-project-rules\{文件名}.mdc" -Destination ".trae\rules\{文件名}.mdc"
          ```
        - ✅ **Linux/Mac (Bash)**：
          ```bash
-         cp "/path/to/source/{文件名}.mdc" ".cursor/rules/{文件名}.mdc"
+         cp "/path/to/source/{文件名}.mdc" ".trae/rules/{文件名}.mdc"
          ```
        - ✅ **批量复制（推荐）**：
-         - Windows: `Get-ChildItem "源目录\*.mdc" | ForEach-Object { Copy-Item $_.FullName -Destination ".cursor\rules\$($_.Name)" }`
-         - Linux/Mac: `cp 源目录/*.mdc .cursor/rules/`
+         - Windows: `Get-ChildItem "源目录\*.mdc" | ForEach-Object { Copy-Item $_.FullName -Destination ".trae\rules\$($_.Name)" }`
+- Linux/Mac: `cp 源目录/*.mdc .trae/rules/`
        - ❌ **绝对禁止**使用 `read_file` + `write`（会在界面显示大量内容）
        - ❌ **绝对禁止**使用 `search_replace`、`edit_file` 等编辑工具
        - ❌ **绝对禁止**手写生成内容
@@ -429,10 +429,10 @@ alwaysApply: true
    
    - **从 GitHub 拉取时（必须使用 curl 的 -o 参数）**：
      - 对于 `list_dir` 获取的每个 `.mdc` 文件：
-       - ✅ **必须**使用 `run_terminal_cmd` 执行 `curl -L "{完整URL}" -o "{目标文件路径}"` 命令直接下载并保存：
+       - ✅ **必须**使用 `run_command` 执行 `curl -L "{完整URL}" -o "{目标文件路径}"` 命令直接下载并保存：
          ```bash
          # 跨平台命令（Windows/Linux/Mac 都支持）
-         curl -L "https://raw.githubusercontent.com/{owner}/{repo}/{branch}/common-project-rules/{文件名}.mdc" -o ".cursor/rules/{文件名}.mdc"
+         curl -L "https://raw.githubusercontent.com/{owner}/{repo}/{branch}/common-project-rules/{文件名}.mdc" -o ".trae/rules/{文件名}.mdc"
          ```
        - ❌ **绝对禁止**使用 `curl` 下载后再用 `write` 写入（会在界面显示文件内容）
        - ❌ **绝对禁止**使用 `read_file` + `write` 方式
@@ -452,10 +452,10 @@ alwaysApply: true
 
 成功导入所有规则文件后，提示用户：
 
-**必须显示实际导入的文件列表**（使用 `list_dir` 获取 `.cursor/rules/` 目录下的文件列表）：
+**必须显示实际导入的文件列表**（使用 `list_dir` 获取 `.trae/rules/` 目录下的文件列表）：
 
 ```
-✅ 已成功导入规则文件到 `.cursor/rules/` 目录：
+✅ 已成功导入规则文件到 `.trae/rules/` 目录：
 
 基础规则（`common-project-rules/` 目录下的所有文件）：
 - {实际导入的文件1}.mdc ({文件大小})
@@ -518,10 +518,10 @@ alwaysApply: true
   
   1. **尝试降级策略**：
      - 提示用户："⚠️ 无法找到可用的规则来源，正在尝试从默认 GitHub 仓库下载规则文件到本地缓存..."
-     - 使用默认 GitHub 仓库：`https://github.com/yfcyfc123234/cursor-rules`
+     - 使用默认 GitHub 仓库：`https://github.com/yfcyfc123234/trae-rules`
      - 确定本地缓存路径：
        - 如果用户之前提供了路径（即使不存在），使用该路径
-       - 如果用户未提供路径，使用默认路径：`C:\Users\Administrator\Desktop\cursor-rules`
+       - 如果用户未提供路径，使用默认路径：`C:\Users\Administrator\Desktop\trae-rules`
      - 尝试创建目录结构（包括 `common-project-rules/` 子目录）
      - 从默认 GitHub 仓库下载所有规则文件到本地缓存
   
@@ -583,11 +583,11 @@ AI：✅ 已成功导入规则文件...
 ```
 用户：帮我导入规则
 AI：检测到这是一个 Flutter 项目，正在检查配置...
-AI：⚠️ 本地缓存路径不存在或无法访问：`C:\Users\Administrator\Desktop\cursor-rules`
+AI：⚠️ 本地缓存路径不存在或无法访问：`C:\Users\Administrator\Desktop\trae-rules`
 AI：请输入正确的本地缓存路径，或按 Enter 跳过本地缓存（将仅从 GitHub 拉取）
-用户：D:\MyRules\cursor-rules
+用户：D:\MyRules\trae-rules
 AI：验证路径中...
-AI：✅ 路径有效，将使用 D:\MyRules\cursor-rules 作为本地缓存
+AI：✅ 路径有效，将使用 D:\MyRules\trae-rules 作为本地缓存
 AI：正在导入规则...
 AI：✅ 已成功导入规则文件
 ```
@@ -597,11 +597,11 @@ AI：✅ 已成功导入规则文件
 ```
 用户：帮我导入规则
 AI：检测到这是一个 Flutter 项目，正在检查配置...
-AI：⚠️ 无法访问 GitHub 仓库：`https://github.com/yfcyfc123234/cursor-rules`
+AI：⚠️ 无法访问 GitHub 仓库：`https://github.com/yfcyfc123234/trae-rules`
 AI：请输入正确的 GitHub 仓库地址（格式：owner/repo 或完整 URL），或按 Enter 跳过 GitHub
-用户：myusername/my-cursor-rules
+用户：myusername/my-trae-rules
 AI：验证仓库中...
-AI：✅ 仓库有效，将使用 https://github.com/myusername/my-cursor-rules
+AI：✅ 仓库有效，将使用 https://github.com/myusername/my-trae-rules
 AI：正在导入规则...
 AI：✅ 已成功导入规则文件
 ```
@@ -611,11 +611,11 @@ AI：✅ 已成功导入规则文件
 ```
 用户：帮我导入规则
 AI：检测到这是一个 Flutter 项目，正在检查配置...
-AI：⚠️ 本地缓存路径不存在或无法访问：`C:\Users\Administrator\Desktop\cursor-rules`
+AI：⚠️ 本地缓存路径不存在或无法访问：`C:\Users\Administrator\Desktop\trae-rules`
 AI：请输入正确的本地缓存路径，或按 Enter 跳过本地缓存
 用户：[按 Enter 跳过]
 AI：⚠️ 无法找到可用的规则来源，正在尝试从默认 GitHub 仓库下载规则文件到本地缓存...
-AI：正在创建目录：C:\Users\Administrator\Desktop\cursor-rules\common-project-rules\
+AI：正在创建目录：C:\Users\Administrator\Desktop\trae-rules\common-project-rules\
 AI：正在下载规则文件...
 AI：✅ 已成功从默认 GitHub 仓库下载规则文件到本地缓存
 AI：正在导入规则...
@@ -629,7 +629,7 @@ AI：✅ 已成功导入规则文件
 AI：检测到这是一个 Flutter 项目，正在检查配置...
 AI：⚠️ 无法找到可用的规则来源，正在尝试从默认 GitHub 仓库下载规则文件到本地缓存...
 AI：正在创建目录...
-AI：❌ 权限不足，无法创建目录或写入文件到：`C:\Users\Administrator\Desktop\cursor-rules`
+AI：❌ 权限不足，无法创建目录或写入文件到：`C:\Users\Administrator\Desktop\trae-rules`
 AI：建议：
   - 检查目录权限
   - 使用管理员权限运行

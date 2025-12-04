@@ -8,8 +8,8 @@ alwaysApply: true
 
 ### 默认配置
 
-- **规则文件夹路径（本地缓存）**：`C:\Users\Administrator\Desktop\cursor-rules`
-- **GitHub 仓库**：`https://github.com/yfcyfc123234/cursor-rules`
+- **规则文件夹路径（本地缓存）**：`C:\Users\Administrator\Desktop\trae-rules`
+- **GitHub 仓库**：`https://github.com/yfcyfc123234/trae-rules`
 - **规则文件格式**：`.mdc` 格式，必须包含 frontmatter 元数据
 
 ### 配置检测和用户提示
@@ -19,7 +19,7 @@ alwaysApply: true
 1. **检测本地缓存路径**
    - 检查默认路径是否存在
    - 如果路径不存在或无法访问：
-     - 提示用户："⚠️ 本地缓存路径不存在或无法访问：`C:\Users\Administrator\Desktop\cursor-rules`"
+     - 提示用户："⚠️ 本地缓存路径不存在或无法访问：`C:\Users\Administrator\Desktop\trae-rules`"
      - 询问用户："请输入正确的本地缓存路径，或按 Enter 跳过本地缓存"
      - 验证用户输入的路径：
        - 检查路径是否存在
@@ -29,7 +29,7 @@ alwaysApply: true
 2. **检测 GitHub 仓库**
    - 尝试访问默认 GitHub 仓库
    - 如果访问失败：
-     - 提示用户："⚠️ 无法访问 GitHub 仓库：`https://github.com/yfcyfc123234/cursor-rules`"
+     - 提示用户："⚠️ 无法访问 GitHub 仓库：`https://github.com/yfcyfc123234/trae-rules`"
      - 询问用户："请输入正确的 GitHub 仓库地址（格式：owner/repo 或完整 URL），或按 Enter 跳过 GitHub"
      - 验证用户输入的仓库地址格式
      - 如果用户跳过，记录并继续（可能仅使用本地缓存）
@@ -55,7 +55,7 @@ alwaysApply: true
 
 ## 项目规则文件位置
 
-- **项目规则目录**：`.cursor/rules/`
+- **项目规则目录**：`.trae/rules/`
 - **文件命名**：使用描述性名称（如 `android-rules.mdc`）
 - **文件格式**：必须包含 frontmatter 元数据，标准格式如下：
   
@@ -69,7 +69,7 @@ alwaysApply: true
 
 ### 检测优先级
 
-当项目根目录的 `.cursor/rules/` 目录不存在或为空时，按以下优先级自动检测项目类型：
+当项目根目录的 `.trae/rules/` 目录不存在或为空时，按以下优先级自动检测项目类型：
 
 1. **Flutter 项目**：
    - 检测条件：存在 `pubspec.yaml`
@@ -187,12 +187,12 @@ alwaysApply: true
 
 ### 场景 1：找到匹配的规则文件（首次导入）
 
-当在规则文件夹中找到对应项目类型的规则文件，且项目的 `.cursor/rules/` 目录不存在或为空时：
+当在规则文件夹中找到对应项目类型的规则文件，且项目的 `.trae/rules/` 目录不存在或为空时：
 
 1. 读取规则文件内容（包含完整的 frontmatter）
-2. 在项目根目录创建 `.cursor/rules/` 目录（如果不存在）
-3. 使用标准命名复制规则文件到项目 `.cursor/rules/{名称}.mdc`（如 `flutter-rules.mdc`）
-4. 提示用户："✅ 已从规则文件夹导入 [项目类型] 项目规则到 `.cursor/rules/{名称}.mdc`"
+2. 在项目根目录创建 `.trae/rules/` 目录（如果不存在）
+3. 使用标准命名复制规则文件到项目 `.trae/rules/{名称}.mdc`（如 `flutter-rules.mdc`）
+4. 提示用户："✅ 已从规则文件夹导入 [项目类型] 项目规则到 `.trae/rules/{名称}.mdc`"
 
 ### 场景 2：未找到匹配的规则文件
 
@@ -202,13 +202,13 @@ alwaysApply: true
    - 包含项目特定的代码风格、架构模式、依赖管理等规范
    - 参考已创建的示例规则文件格式
 2. 保存新规则到规则文件夹（使用对应的文件名，如 `android-project.mdc`）
-3. 在项目根目录创建 `.cursor/rules/` 目录（如果不存在）
-4. 使用标准命名复制到当前项目 `.cursor/rules/{名称}.mdc`
-5. 提示用户："✅ 已创建新的 [项目类型] 项目规则模板，保存到规则文件夹并导入到 `.cursor/rules/{名称}.mdc`"
+3. 在项目根目录创建 `.trae/rules/` 目录（如果不存在）
+4. 使用标准命名复制到当前项目 `.trae/rules/{名称}.mdc`
+5. 提示用户："✅ 已创建新的 [项目类型] 项目规则模板，保存到规则文件夹并导入到 `.trae/rules/{名称}.mdc`"
 
 ### 场景 3：项目已有规则文件（需要冲突检测）
 
-当 `.cursor/rules/` 目录已存在且不为空时：
+当 `.trae/rules/` 目录已存在且不为空时：
 
 **必须执行冲突检测流程**（参考 `rules-management/rules-conflict-management.mdc`）：
 
@@ -239,7 +239,7 @@ alwaysApply: true
 
 ## 执行时机
 
-- **首次打开项目时**：自动检查 `.cursor/rules/` 目录，如果不存在或为空则执行自动管理流程
+- **首次打开项目时**：自动检查 `.trae/rules/` 目录，如果不存在或为空则执行自动管理流程
 - **用户主动请求时**：用户明确要求"生成项目规则"、"导入项目规则"、"创建项目规则"或"导入规则"时执行
 - **用户指定项目类型时**：用户明确说明项目类型（如"这是 Flutter 项目"）时执行
 - **项目类型变更时**：当检测到项目类型发生变化时（如从纯 Android 变为混合项目），可以提示用户是否需要更新规则
@@ -249,11 +249,11 @@ alwaysApply: true
 ### 优先级策略
 
 1. **优先从本地缓存拉取**
-   - 本地缓存路径：`C:\Users\Administrator\Desktop\cursor-rules`
+   - 本地缓存路径：`C:\Users\Administrator\Desktop\trae-rules`
    - 如果本地存在规则文件，直接使用
 
 2. **GitHub 作为备用**
-   - GitHub 仓库：`https://github.com/yfcyfc123234/cursor-rules`
+   - GitHub 仓库：`https://github.com/yfcyfc123234/trae-rules`
    - 默认分支：`main`
    - 如果本地不存在，从 GitHub 拉取
 

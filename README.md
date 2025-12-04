@@ -1,10 +1,10 @@
-# Cursor 项目规则自动化管理系统
+# Trae 项目规则自动化管理系统
 
-> 一个智能的 Cursor IDE 项目规则管理系统，支持从 GitHub 或本地缓存自动拉取规则，根据项目类型自动匹配，实现规则的一键导入和自动化管理。
+> 一个智能的 Trae IDE 项目规则管理系统，支持从 GitHub 或本地缓存自动拉取规则，根据项目类型自动匹配，实现规则的一键导入和自动化管理。
 
 ## 📋 项目概述
 
-本项目旨在实现一个智能的 Cursor 项目规则自动化管理系统。当你打开或新建一个 Cursor 项目时，系统能够：
+本项目旨在实现一个智能的 Trae 项目规则自动化管理系统。当你打开或新建一个 Trae 项目时，系统能够：
 
 - 🔍 **自动检测项目类型**：识别 Android、Flutter、Python、PHP 等项目类型
 - 📥 **自动拉取规则**：从 GitHub 仓库或本地缓存文件夹获取对应的规则文件
@@ -47,8 +47,8 @@
 
 #### 规则来源
 
-- **GitHub 仓库**：`https://github.com/yfcyfc123234/cursor-rules`
-- **本地缓存**：`C:\Users\Administrator\Desktop\cursor-rules`
+- **GitHub 仓库**：`https://github.com/yfcyfc123234/trae-rules`
+- **本地缓存**：`C:\Users\Administrator\Desktop\trae-rules`
 
 #### 拉取策略
 
@@ -112,7 +112,7 @@
 
 #### 自动触发
 
-- **打开项目时**：检测到 `.cursor/rules/` 目录为空时自动执行
+- **打开项目时**：检测到 `.trae/rules/` 目录为空时自动执行
 - **提示模式**：自动检测后提示用户确认是否导入
 
 #### 手动触发
@@ -148,7 +148,7 @@
 ## 📁 项目结构
 
 ```text
-cursor-rules/
+trae-rules/
 ├── README.md                          # 项目说明文档（本文件）
 ├── common-project-rules/                # 通用规则（适用于所有项目，自动导入）
 │   ├── user-base-rule.mdc             # 用户基础规则
@@ -182,21 +182,21 @@ cursor-rules/
 
 ### 场景 1：打开新项目
 
-当你打开一个新的 Cursor 项目时：
+当你打开一个新的 Trae 项目时：
 
 1. 系统自动检测项目类型
-2. 如果 `.cursor/rules/` 目录为空，自动提示是否导入规则
+2. 如果 `.trae/rules/` 目录为空，自动提示是否导入规则
 3. 确认后自动从 GitHub 或本地缓存拉取规则
-4. 规则文件自动保存到 `.cursor/rules/` 目录
+4. 规则文件自动保存到 `.trae/rules/` 目录
 
 ### 场景 2：手动导入规则
 
-在 Cursor 中与 AI 对话：
+在 Trae 中与 AI 对话：
 
 ```text
 用户：帮我导入规则
 AI：检测到这是一个 Flutter 项目，正在从 GitHub 拉取规则...
-AI：✅ 已成功导入规则文件到 .cursor/rules/ 目录
+AI：✅ 已成功导入规则文件到 .trae/rules/ 目录
 ```
 
 ### 场景 3：指定项目类型
@@ -221,13 +221,13 @@ AI：正在分析设计图，将按照一比一像素还原...
 
 ### GitHub 仓库配置
 
-- **仓库地址**：`https://github.com/yfcyfc123234/cursor-rules`
+- **仓库地址**：`https://github.com/yfcyfc123234/trae-rules`
 - **默认分支**：`main`
-- **Raw Content URL**：`https://raw.githubusercontent.com/yfcyfc123234/cursor-rules/main/`
+- **Raw Content URL**：`https://raw.githubusercontent.com/yfcyfc123234/trae-rules/main/`
 
 ### 本地缓存路径
 
-- **Windows**：`C:\Users\Administrator\Desktop\cursor-rules`
+- **Windows**：`C:\Users\Administrator\Desktop\trae-rules`
 - 如需修改，可在规则文件中更新路径配置
 
 ## 📝 规则文件格式
@@ -268,7 +268,7 @@ alwaysApply: true
 ### 规则导入流程
 
 1. **触发检测**
-   - 检测 `.cursor/rules/` 目录状态
+   - 检测 `.trae/rules/` 目录状态
    - 识别用户指令或自动触发
 
 2. **项目类型识别**
@@ -276,7 +276,7 @@ alwaysApply: true
    - 支持用户明确指定
 
 3. **冲突检测**（重要）
-   - 如果 `.cursor/rules/` 目录已存在且不为空，执行冲突检测
+   - 如果 `.trae/rules/` 目录已存在且不为空，执行冲突检测
    - 识别用户自定义规则文件（绝对不触碰）
    - 检测规则文件是否被用户修改
 
@@ -299,7 +299,7 @@ alwaysApply: true
    - 处理文件名冲突（使用递增后缀）
 
 8. **保存到项目**
-   - 创建 `.cursor/rules/` 目录
+   - 创建 `.trae/rules/` 目录
    - 保存所有规则文件
 
 9. **完成提示**
@@ -496,8 +496,8 @@ alwaysApply: true
 
 ## 📚 相关文档
 
-- [Cursor Rules 官方文档](https://cursor.sh/docs)
-- [GitHub 仓库](https://github.com/yfcyfc123234/cursor-rules)
+- [Trae Rules 官方文档](https://trae.ai/docs)
+- [GitHub 仓库](https://github.com/yfcyfc123234/trae-rules)
 
 ## 📄 许可证
 
@@ -507,7 +507,7 @@ alwaysApply: true
 
 1. **首次使用**：建议先手动导入一次规则，熟悉流程
 2. **规则更新**：定期从 GitHub 同步最新规则
-3. **自定义规则**：可以在项目本地 `.cursor/rules/` 目录添加项目特定规则
+3. **自定义规则**：可以在项目本地 `.trae/rules/` 目录添加项目特定规则
 4. **规则优先级**：项目规则 > 通用规则（项目特定规则优先）
 
 ## 🐛 问题反馈

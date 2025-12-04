@@ -66,8 +66,8 @@ alwaysApply: true
    步骤 1: 使用 list_dir 扫描源目录，获取所有 .mdc 文件列表
    步骤 2: 检测操作系统类型（Windows/Linux/Mac）
    步骤 3: 对于每个文件：
-            - 从本地缓存：run_terminal_cmd(文件系统复制命令) → 直接复制文件
-            - 从 GitHub：run_terminal_cmd(curl -L URL -o 目标路径) → 直接下载并保存文件
+            - 从本地缓存：run_command(文件系统复制命令) → 直接复制文件
+- 从 GitHub：run_command(curl -L URL -o 目标路径) → 直接下载并保存文件
    步骤 4: 验证文件是否成功复制（使用 list_dir 检查目标目录）
    ```
 
