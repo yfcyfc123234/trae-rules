@@ -1,0 +1,553 @@
+---
+alwaysApply: true
+---
+
+# GitHub 规则自动拉取
+
+## 🚨 绝对禁止：GitHub 规则拉取执行方式
+
+**AI 在执行 GitHub 规则拉取时，必须严格遵守以下要求，违反将导致规则导入失败：**
+
+### ❌ 绝对禁止的操作
+
+1. **禁止使用 curl + write 方式**：
+   - ❌ **绝对禁止**使用 `curl` 下载后再用 `write` 写入（这会在界面显示文件内容，看起来像逐行处理）
+   - ❌ **绝对禁止**使用 `read_file` 读取 GitHub URL 后再用 `write` 写入
+   - ❌ **绝对禁止**使用 `search_replace` 工具编辑规则文件
+   - ❌ **绝对禁止**使用 `edit_file` 工具编辑规则文件
+   - ❌ **绝对禁止**一行一行地手写生成规则内容
+   - ❌ **绝对禁止**根据规则描述生成规则内容
+
+2. **禁止的行为**：
+   - ❌ 不能根据规则文件的描述来生成内容
+   - ❌ 不能根据规则文件的标题来生成内容
+   - ❌ 不能根据规则文件的目录结构来生成内容
+   - ❌ 不能使用 AI 的知识来"回忆"规则内容
+
+### ✅ 必须执行的操作
+
+1. **从 GitHub 下载规则文件（必须使用 curl 的 -o 参数）**：
+   - ✅ **必须**使用 `run_terminal_cmd` 执行 `curl -L "{完整URL}" -o "{目标文件路径}"` 命令直接下载并保存文件：
+     ```bash
+     # 跨平台命令（Windows/Linux/Mac 都支持）
+     curl -L "https://raw.githubusercontent.com/{owner}/{repo}/{branch}/common-project-rules/user-base-rule.mdc" -o ".cursor/rules/user-base-rule.mdc"
+     ```
+   - ✅ **必须**使用 `-o` 参数直接保存到目标文件，不在界面显示文件内容
+   - ✅ **必须**保持文件内容完全一致，不能修改任何内容（除了添加 frontmatter 如果缺失）
+   - ❌ **绝对禁止**使用 `curl` 下载后再用 `write` 写入（这会在界面显示文件内容）
+
+2. **执行流程**：
+   ```
+   步骤 1: 使用 list_dir 扫描源目录（或构建文件列表），获取所有 .mdc 文件列表
+   步骤 2: 对于每个文件：
+            - 构建完整的 GitHub Raw Content URL
+            - run_terminal_cmd(curl -L URL -o 目标路径) → 直接下载并保存文件
+   步骤 3: 验证文件是否成功保存（使用 list_dir 检查目标目录）
+   ```
+
+### ⚠️ 关键原则
+
+- **规则文件是直接下载，不是下载后写入**
+- **必须使用 curl 的 -o 参数直接保存，禁止使用 curl + write**
+- **必须注意跨平台兼容性，curl -o 在所有平台都支持**
+- **必须保持原始文件内容完全一致**
+- **不能在界面显示文件内容，避免看起来像逐行处理**
+
+## GitHub 仓库配置
+
+- **仓库地址**：`https://github.com/yfcyfc123234/cursor-rules`
+- **默认分支**：`main`（如果不存在则尝试 `master`）
+- **Raw Content URL 基础路径**：`https://raw.githubusercontent.com/yfcyfc123234/cursor-rules/main/`
+- **本地缓存路径**：`C:\Users\Administrator\Desktop\cursor-rules`
+- **仓库结构**：与本地缓存路径保持一致
+- **仓库类型**：公开仓库，无需认证
+
+## 拉取规则
+
+### 通用规则
+
+**⚠️ 重要：必须拉取 `common-project-rules/` 目录下的所有 `.mdc` 文件**
+
+- **拉取目录**：`common-project-rules/` 目录下的**所有** `.mdc` 文件
+- **执行方式**：
+  - **必须使用 `list_dir` 工具扫描 `common-project-rules/` 目录**，获取所有 `.mdc` 文件列表
+  - **必须拉取目录下的所有 `.mdc` 文件**，不能遗漏任何文件
+  - **禁止使用硬编码的文件列表**，必须动态获取完整文件列表
+- **排除目录**：
+  - `rules-management/` - 规则导入/管理类文件，只用于 AI 分析如何导入规则，不导入到用户项目
+  - `optional-project-rules/` - 可选规则，不会自动拉取
+
+**重要说明**：
+- **通用规则（`common-project-rules/`）**：**必须全部自动拉取**，所有项目都需要，不能遗漏任何文件
+- **规则管理文件（`rules-management/`）**：**不拉取到用户项目**，只用于 AI 分析如何导入规则
+- **可选规则（`optional-project-rules/`）**：**不会自动拉取**，需要用户明确要求才拉取
+
+**当前 `common-project-rules/` 目录包含的文件（仅供参考，实际必须动态获取）**：
+- `user-base-rule.mdc` - 用户基础规则
+- `git-automation.mdc` - Git 自动化规则
+- `batch-file-operations.mdc` - 批量文件操作优化规则
+- `hardware-limitations.mdc` - 硬件限制规则
+- `documentation-format.mdc` - 文档格式规范
+- `ui-design-reconstruction.mdc` - UI 设计图还原规则
+- 以及其他所有 `.mdc` 文件（必须动态获取完整列表）
+
+### 项目规则
+
+- **拉取方式**：根据项目类型自动检测或用户明确指定
+- **项目类型映射**：
+  - Flutter 项目 → `flutter-project.mdc`（支持多平台，包含 Platform Channel 相关内容）
+  - Android 项目 → `android-project.mdc`
+  - React Native 项目 → `react-native-project.mdc`
+  - iOS 项目 → `ios-project.mdc`
+  - React 项目 → `react-project.mdc`
+  - Vue 项目 → `vue-project.mdc`
+  - Next.js 项目 → `nextjs-project.mdc`
+  - TypeScript 项目 → `typescript-project.mdc`
+  - Node.js 项目 → `nodejs-project.mdc`
+  - Spring Boot 项目 → `spring-boot-project.mdc`
+  - Python 项目 → `python-project.mdc`
+  - PHP 项目 → `php-project.mdc`
+  - Kotlin 项目 → `kotlin-project.mdc`
+  - Java 项目 → `java-project.mdc`
+
+## 执行时机
+
+- **自动触发**：当项目根目录的 `.cursor/rules/` 目录不存在或为空时
+- **手动触发**：用户明确要求"从 GitHub 拉取规则"、"同步规则"、"更新规则"或"从 GitHub 导入规则"时
+
+## 实现流程
+
+### 步骤 1：检测触发条件
+
+1. 检查项目根目录是否存在 `.cursor/rules/` 目录
+2. 如果目录不存在或为空，执行自动拉取流程
+3. 如果目录已存在且不为空：
+   - 询问用户是否覆盖现有规则文件
+   - 如果用户同意，继续执行拉取流程
+   - 如果用户拒绝，跳过并提示："ℹ️ 项目已有规则文件，跳过自动拉取。如需更新，请手动操作。"
+
+### 步骤 2：确定 GitHub 仓库信息
+
+1. **获取仓库地址**：
+   - **默认值**：`https://github.com/yfcyfc123234/cursor-rules`
+   - **优先级**：
+     1. 用户明确指定的仓库地址（如果用户指定）
+     2. 默认仓库地址
+   
+   - **检测和验证**：
+     - 尝试访问默认仓库地址
+     - 如果访问失败（404、网络错误等）：
+       - 提示用户："⚠️ 无法访问默认 GitHub 仓库：`https://github.com/yfcyfc123234/cursor-rules`"
+       - 询问用户："请输入正确的 GitHub 仓库地址（格式：owner/repo 或完整 URL）"
+       - 验证用户输入的格式：
+         - 支持格式：`owner/repo` 或 `https://github.com/owner/repo`
+         - 验证仓库是否为公开仓库
+       - 如果用户未提供或格式错误，提示错误并询问重试
+       - 如果用户选择跳过，记录并继续（可能仅使用本地缓存）
+
+2. **确定分支**：
+   - **默认值**：`main` 分支
+   - **优先级**：
+     1. 用户指定的分支
+     2. 默认 `main` 分支
+     3. 如果 `main` 不存在，尝试 `master` 分支
+   
+   - **分支验证**：
+     - 尝试访问分支的 Raw Content URL
+     - 如果分支不存在，提示用户选择其他分支
+
+3. **构建基础 URL**：
+   - Raw Content URL 格式：`https://raw.githubusercontent.com/{owner}/{repo}/{branch}/`
+   - 根据确定的仓库地址和分支构建完整 URL
+   - 默认完整路径：`https://raw.githubusercontent.com/yfcyfc123234/cursor-rules/main/`
+
+### 步骤 3：确定项目类型
+
+使用 `rules-management/project-rules-auto-management.mdc` 中的项目类型检测逻辑：
+
+1. **Flutter 混合项目**：
+   - 检测条件：存在 `pubspec.yaml` 且存在 `android/` 目录
+   - 项目规则文件：`android-flutter-project.mdc`
+
+2. **Flutter 项目**：
+   - 检测条件：存在 `pubspec.yaml`
+   - 项目规则文件：`flutter-project.mdc`
+
+3. **Android 项目**：
+   - 检测条件：存在 `settings.gradle` 或根目录 `build.gradle`，且不存在 `pubspec.yaml`
+   - 项目规则文件：`android-project.mdc`
+
+4. **Python 项目**：
+   - 检测条件：存在 `requirements.txt` 或 `pyproject.toml`
+   - 项目规则文件：`python-project.mdc`
+
+5. **PHP 项目**：
+   - 检测条件：存在 `composer.json`
+   - 项目规则文件：`php-project.mdc`
+
+6. **其他类型**：
+   - 根据主要代码文件类型判断
+   - `.kt` 文件为主 → `kotlin-project.mdc`
+   - `.java` 文件为主 → `java-project.mdc`
+
+**用户指定项目类型**：
+- 如果用户明确说明项目类型（如"这是 Flutter 项目"），优先使用用户指定的类型
+- 忽略自动检测结果，直接使用用户指定的项目类型对应的规则文件
+
+### 步骤 4：从 GitHub 拉取文件
+
+**重要：执行方式说明**
+
+从 GitHub 拉取文件时，**必须使用 curl 的 -o 参数直接下载并保存**，而不是下载后写入：
+
+1. **使用 `run_terminal_cmd` 执行 `curl -L "{URL}" -o "{目标路径}"` 命令**：
+   - 构建完整的 Raw Content URL
+   - 使用 `curl -L "{URL}" -o "{目标路径}"` 命令直接下载并保存文件
+   - **跨平台命令**：`curl -L "URL" -o "目标路径"`（Windows/Linux/Mac 都支持）
+   - ❌ **绝对禁止**使用 `curl` 下载后再用 `write` 写入（会在界面显示文件内容）
+
+2. **文件复制原则**：
+   - 规则文件是**直接下载**，不是**下载后写入**
+   - 必须保持原始文件内容完全一致
+   - 不能在界面显示文件内容，避免看起来像逐行处理
+   - 只允许添加或修复 frontmatter（如果缺失）
+
+#### 4.1 拉取通用规则
+
+**⚠️ 重要：必须拉取 `common-project-rules/` 目录下的所有 `.mdc` 文件**
+
+1. **获取文件列表**：
+   - **必须使用 `list_dir` 工具扫描 `common-project-rules/` 目录**，获取所有 `.mdc` 文件列表
+   - **禁止使用硬编码的文件列表**
+   - 确保获取完整的文件列表，不遗漏任何文件
+
+2. **遍历所有文件**：
+   对于 `list_dir` 获取的每个 `.mdc` 文件：
+
+   a. **构建文件 URL**：
+      ```
+      https://raw.githubusercontent.com/{owner}/{repo}/{branch}/common-project-rules/{filename}
+      ```
+
+    b. **拉取文件内容**：
+     - ✅ **必须**使用 `run_terminal_cmd` 执行 `curl -L "{完整URL}" -o "{目标文件路径}"` 命令直接下载并保存：
+       ```bash
+       # 跨平台命令（Windows/Linux/Mac 都支持）
+       curl -L "https://raw.githubusercontent.com/{owner}/{repo}/{branch}/common-project-rules/{filename}" -o ".cursor/rules/{filename}"
+       ```
+     - ✅ **必须**使用 `-o` 参数直接保存到目标文件，不在界面显示文件内容
+     - ❌ **绝对禁止**使用 `curl` 下载后再用 `write` 写入（会在界面显示文件内容）
+     - ❌ **绝对禁止**使用 `read_file` + `write` 方式
+     - ❌ **绝对禁止**使用 `search_replace`、`edit_file` 等编辑工具
+     - ❌ **绝对禁止**手写生成内容
+     - 如果文件不存在（404 错误），跳过该文件并继续处理下一个
+     - 如果网络错误，记录错误并继续尝试其他文件
+
+3. **验证文件格式**：
+   - 检查文件是否包含 frontmatter（`---\nalwaysApply: true\n---`）
+   - 如果缺少 frontmatter，自动添加：
+     ```markdown
+     ---
+     alwaysApply: true
+     ---
+     
+     [文件内容]
+     ```
+
+#### 4.2 拉取项目规则
+
+1. **确定项目规则文件名**：根据步骤 3 确定的项目类型
+
+2. **构建文件 URL**：
+   ```
+   https://raw.githubusercontent.com/{owner}/{repo}/{branch}/{project-rule-filename}
+   ```
+
+3. **拉取文件内容**：
+   - ✅ **必须**使用 `run_terminal_cmd` 执行 `curl -L "{完整URL}" -o "{目标文件路径}"` 命令直接下载并保存：
+     ```bash
+     # 跨平台命令（Windows/Linux/Mac 都支持）
+     curl -L "https://raw.githubusercontent.com/{owner}/{repo}/{branch}/{project-rule-filename}" -o ".cursor/rules/{目标文件名}.mdc"
+     ```
+   - ✅ **必须**使用 `-o` 参数直接保存到目标文件，不在界面显示文件内容
+   - ❌ **绝对禁止**使用 `curl` 下载后再用 `write` 写入（会在界面显示文件内容）
+   - ❌ **绝对禁止**使用 `read_file` + `write` 方式
+   - ❌ **绝对禁止**手写生成内容
+   - 如果文件不存在（404 错误），提示用户："⚠️ 未找到对应的项目规则文件 `{filename}`，跳过项目规则拉取。"
+   - 如果网络错误，记录错误并提示用户
+
+4. **验证文件格式**：
+   - 检查文件是否包含 frontmatter
+   - 如果缺少，自动添加
+
+### 步骤 5：文件命名策略
+
+1. **通用规则文件**：
+   - 保持原文件名（如 `user-base-rule.mdc`、`git-automation.mdc`）
+
+2. **项目规则文件**：
+   - 使用描述性名称，基于项目类型：
+     - Flutter 混合项目 → `android-flutter-rules.mdc`
+     - Flutter 项目 → `flutter-rules.mdc`
+     - Android 项目 → `android-rules.mdc`
+     - Python 项目 → `python-rules.mdc`
+     - PHP 项目 → `php-rules.mdc`
+     - Kotlin 项目 → `kotlin-rules.mdc`
+     - Java 项目 → `java-rules.mdc`
+
+3. **处理文件名冲突**：
+   - 检查 `.cursor/rules/` 目录中是否已存在同名文件
+   - 如果存在，使用下一个可用名称：
+     - 如果已有 `android-rules.mdc`，使用 `android-rules2.mdc`
+     - 如果已有 `android-rules.mdc` 和 `android-rules2.mdc`，使用 `android-rules3.mdc`
+     - 依此类推，直到找到可用的文件名
+
+### 步骤 6：保存到项目和本地缓存
+
+1. **创建目录**：
+   - 在项目根目录创建 `.cursor/rules/` 目录（如果不存在）
+   - 确保本地缓存目录存在（如果路径不存在，尝试创建目录）
+
+2. **保存到项目（必须使用 curl 的 -o 参数直接保存）**：
+   - ✅ **必须**使用 `run_terminal_cmd` 执行 `curl -L "{完整URL}" -o "{目标文件路径}"` 命令直接下载并保存：
+     ```bash
+     # 跨平台命令（Windows/Linux/Mac 都支持）
+     curl -L "https://raw.githubusercontent.com/{owner}/{repo}/{branch}/common-project-rules/{filename}" -o ".cursor/rules/{filename}"
+     ```
+   - ✅ **必须**使用 `-o` 参数直接保存到目标文件，不在界面显示文件内容
+   - ❌ **绝对禁止**使用 `curl` 下载后再用 `write` 写入（会在界面显示文件内容）
+   - ❌ **绝对禁止**使用 `read_file` + `write` 方式
+   - ❌ **绝对禁止**手写生成内容
+   - 使用步骤 5 确定的文件名
+   - 确保文件内容完整，包含 frontmatter
+   - **重要**：必须保持原始文件内容完全一致，只允许添加或修复 frontmatter（如果缺失）
+
+3. **更新本地缓存**：
+   - 从 GitHub 拉取成功后，同时更新本地缓存
+   - 保存到本地缓存路径的对应位置
+   - 确保本地缓存与 GitHub 仓库同步
+   - **如果本地缓存路径不存在**：
+     - 尝试创建目录结构（包括 `common-project-rules/` 子目录）
+     - 如果创建失败，记录错误但继续保存到项目
+
+4. **验证保存结果**：
+   - 使用 `list_dir` 检查目标目录，确认文件是否成功保存到项目
+   - 使用 `list_dir` 检查本地缓存目录，确认文件是否成功保存到本地缓存（如果路径可用）
+   - 验证文件是否存在（不需要读取文件内容）
+
+### 降级策略：自动下载到本地缓存
+
+当用户既没有本地缓存，也没有提供 GitHub 地址时，执行以下降级策略：
+
+1. **检测条件**：
+   - 本地缓存路径不存在或无法访问
+   - 用户未提供有效的 GitHub 仓库地址
+   - 用户未提供有效的本地缓存路径
+
+2. **执行降级策略**：
+   - 提示用户："⚠️ 无法找到可用的规则来源，正在尝试从默认 GitHub 仓库下载规则文件到本地缓存..."
+   - 使用默认 GitHub 仓库：`https://github.com/yfcyfc123234/cursor-rules`
+   - 使用默认分支：`main`
+   - 确定本地缓存路径：
+     - 如果用户之前提供了路径（即使不存在），使用该路径
+     - 如果用户未提供路径，使用默认路径：`C:\Users\Administrator\Desktop\cursor-rules`
+
+3. **创建目录结构**：
+   - 尝试创建本地缓存根目录（如果不存在）
+   - 尝试创建 `common-project-rules/` 子目录（如果不存在）
+   - 如果创建失败，记录错误并继续尝试下载
+
+4. **下载规则文件（必须使用 curl 的 -o 参数）**：
+   - 从默认 GitHub 仓库下载所有通用规则文件到 `common-project-rules/` 目录
+   - 下载项目规则文件到根目录
+   - 使用 Raw Content URL：`https://raw.githubusercontent.com/yfcyfc123234/cursor-rules/main/`
+   - 对于每个文件：
+     - 构建完整的文件 URL
+     - ✅ **必须**使用 `run_terminal_cmd` 执行 `curl -L "{完整URL}" -o "{目标文件路径}"` 命令直接下载并保存：
+       ```bash
+       # 跨平台命令（Windows/Linux/Mac 都支持）
+       curl -L "https://raw.githubusercontent.com/yfcyfc123234/cursor-rules/main/common-project-rules/{filename}" -o "{本地缓存路径}/common-project-rules/{filename}"
+       ```
+     - ✅ **必须**使用 `-o` 参数直接保存到目标文件，不在界面显示文件内容
+     - ❌ **绝对禁止**使用 `curl` 下载后再用 `write` 写入（会在界面显示文件内容）
+     - 验证文件是否存在（使用 `list_dir` 检查，不需要读取文件内容）
+
+5. **错误处理**：
+   - **网络错误**：
+     - 提示："❌ 网络连接失败，无法从 GitHub 下载规则文件"
+     - 建议用户检查网络连接后重试
+     - 放弃操作
+   
+   - **权限错误**：
+     - 提示："❌ 权限不足，无法创建目录或写入文件到：`{路径}`"
+     - 建议用户：
+       - 检查目录权限
+       - 使用管理员权限运行
+       - 或选择其他可写的路径
+     - 放弃操作
+   
+   - **部分文件下载失败**：
+     - 记录成功下载的文件数量
+     - 记录失败的文件和原因
+     - 如果关键文件（如 `auto-import-rules.mdc`）下载失败，放弃操作
+     - 如果非关键文件下载失败，继续使用已下载的文件
+
+6. **下载成功**：
+   - 提示用户："✅ 已成功从默认 GitHub 仓库下载规则文件到本地缓存：`{路径}`"
+   - 显示下载的文件列表
+   - 使用本地缓存继续执行规则导入流程
+
+7. **下载失败**：
+   - 友好提示用户："❌ 无法从默认 GitHub 仓库下载规则文件"
+   - 说明可能的原因：
+     - 网络连接问题
+     - 权限不足
+     - GitHub 仓库暂时不可访问
+   - 提供建议：
+     - 检查网络连接
+     - 检查目录权限
+     - 稍后重试
+     - 或手动配置本地缓存路径或 GitHub 仓库地址
+   - 放弃操作，不继续执行规则导入
+
+### 步骤 7：完成提示
+
+成功拉取并保存所有文件后，提示用户：
+
+**必须显示实际导入的文件列表**（使用 `list_dir` 获取 `.cursor/rules/` 目录下的文件列表）：
+
+```
+✅ 已从 GitHub 仓库拉取规则文件：
+
+通用规则（`common-project-rules/` 目录下的所有文件）：
+- {实际导入的文件1}.mdc ({文件大小})
+- {实际导入的文件2}.mdc ({文件大小})
+- {实际导入的文件3}.mdc ({文件大小})
+...（列出所有实际导入的通用规则文件）
+
+项目规则：
+- {项目规则文件名}.mdc ({文件大小})
+
+所有规则文件已保存到 `.cursor/rules/` 目录。
+```
+
+**重要**：完成提示中必须显示**实际导入的文件列表**，不能使用占位符或示例列表。必须确保所有 `common-project-rules/` 目录下的文件都已导入。
+
+## 错误处理
+
+### 网络错误
+
+- **症状**：无法连接到 GitHub 或请求超时
+- **处理**：提示用户检查网络连接，并询问是否重试
+- **继续执行**：如果用户选择重试，重新执行失败的请求；如果用户选择跳过，继续处理其他文件
+
+### 仓库不存在
+
+- **症状**：返回 404 错误（仓库级别）
+- **处理**：提示用户检查仓库地址是否正确，仓库是否为公开仓库
+- **停止执行**：无法继续，需要用户提供正确的仓库地址
+
+### 文件不存在
+
+- **症状**：单个文件返回 404 错误
+- **处理**：跳过该文件，记录日志，继续处理其他文件
+- **继续执行**：不影响其他文件的拉取
+
+### 权限问题
+
+- **症状**：返回 403 错误
+- **处理**：提示用户检查仓库是否为公开仓库，或是否需要认证
+- **停止执行**：如果是私有仓库，需要用户提供认证信息（但当前规则仅支持公开仓库）
+
+### 文件格式错误
+
+- **症状**：文件内容不完整或格式不正确
+- **处理**：自动修复（添加 frontmatter），如果无法修复则跳过该文件
+- **继续执行**：继续处理其他文件
+
+## 技术实现细节
+
+### GitHub Raw Content API
+
+- **URL 格式**：`https://raw.githubusercontent.com/{owner}/{repo}/{branch}/{path}`
+- **实际 URL**：
+  - 通用规则：`https://raw.githubusercontent.com/yfcyfc123234/cursor-rules/main/common-project-rules/user-base-rule.mdc`
+  - 项目规则：`https://raw.githubusercontent.com/yfcyfc123234/cursor-rules/main/flutter-project.mdc`
+
+### HTTP 请求
+
+- 使用标准的 HTTP GET 请求
+- 设置合理的超时时间（建议 10 秒）
+- 处理 HTTP 状态码：
+  - 200：成功
+  - 404：文件或仓库不存在
+  - 403：权限问题
+  - 其他：网络错误或服务器错误
+
+### 文件内容处理
+
+- 确保所有文件包含 frontmatter
+- 保持文件内容的原始格式
+- 处理不同操作系统的换行符差异
+
+## 使用示例
+
+### 自动触发场景
+
+当用户在 Cursor 中打开一个新项目（`.cursor/rules/` 目录不存在或为空）时：
+
+1. 自动检测项目类型（如 Flutter 项目）
+2. 从 GitHub 拉取所有通用规则和对应的项目规则（`flutter-project.mdc`）
+3. 保存到项目的 `.cursor/rules/` 目录
+4. 提示用户拉取完成
+
+### 手动触发场景
+
+用户明确要求："从 GitHub 拉取规则" 或 "同步规则"：
+
+1. 询问用户 GitHub 仓库地址（如果未配置）
+2. 检测项目类型或询问用户项目类型
+3. 从 GitHub 拉取规则文件
+4. 如果项目已有规则文件，询问是否覆盖
+5. 保存文件并提示完成
+
+### 指定仓库地址场景
+
+用户说明："从 `username/cursor-rules` 仓库拉取规则"：
+
+1. 使用用户指定的仓库地址
+2. 执行拉取流程
+3. 保存文件并提示完成
+
+## 本地缓存机制
+
+### 缓存策略
+
+1. **优先使用本地缓存**
+   - 首先检查本地缓存路径（`C:\Users\Administrator\Desktop\cursor-rules`）
+   - 如果本地存在规则文件，直接使用本地文件
+
+2. **GitHub 作为备用**
+   - 如果本地不存在，从 GitHub 拉取
+   - 拉取成功后更新本地缓存
+
+3. **自动同步**
+   - 从 GitHub 拉取成功后，自动保存到本地缓存
+   - 确保本地缓存与 GitHub 仓库保持同步
+
+### 缓存更新
+
+- **更新时机**：从 GitHub 成功拉取文件后
+- **更新位置**：`C:\Users\Administrator\Desktop\cursor-rules`
+- **更新内容**：所有成功拉取的规则文件
+
+## 注意事项
+
+- **避免循环拉取**：排除 `github-rules-sync.mdc` 文件，避免无限循环
+- **文件完整性**：确保拉取的文件包含完整的 frontmatter，否则 Cursor 可能无法正确加载
+- **网络依赖**：需要网络连接才能从 GitHub 拉取文件
+- **仓库公开性**：当前规则仅支持公开仓库，私有仓库需要额外的认证配置
+- **分支选择**：优先使用 `main` 分支，如果不存在则尝试 `master` 分支
+- **错误恢复**：单个文件拉取失败不应影响其他文件的拉取
+- **文件冲突**：如果项目已存在同名规则文件，使用递增的数字后缀避免覆盖
+- **本地缓存**：从 GitHub 拉取成功后自动更新本地缓存，确保同步

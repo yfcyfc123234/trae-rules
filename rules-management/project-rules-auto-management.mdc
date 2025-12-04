@@ -1,0 +1,277 @@
+---
+alwaysApply: true
+---
+
+# 项目规则自动管理
+
+## 规则文件夹配置
+
+### 默认配置
+
+- **规则文件夹路径（本地缓存）**：`C:\Users\Administrator\Desktop\cursor-rules`
+- **GitHub 仓库**：`https://github.com/yfcyfc123234/cursor-rules`
+- **规则文件格式**：`.mdc` 格式，必须包含 frontmatter 元数据
+
+### 配置检测和用户提示
+
+在执行规则管理前，需要检测配置是否可用：
+
+1. **检测本地缓存路径**
+   - 检查默认路径是否存在
+   - 如果路径不存在或无法访问：
+     - 提示用户："⚠️ 本地缓存路径不存在或无法访问：`C:\Users\Administrator\Desktop\cursor-rules`"
+     - 询问用户："请输入正确的本地缓存路径，或按 Enter 跳过本地缓存"
+     - 验证用户输入的路径：
+       - 检查路径是否存在
+       - 检查路径是否可读
+     - 如果用户跳过，记录并继续（可能仅使用 GitHub）
+
+2. **检测 GitHub 仓库**
+   - 尝试访问默认 GitHub 仓库
+   - 如果访问失败：
+     - 提示用户："⚠️ 无法访问 GitHub 仓库：`https://github.com/yfcyfc123234/cursor-rules`"
+     - 询问用户："请输入正确的 GitHub 仓库地址（格式：owner/repo 或完整 URL），或按 Enter 跳过 GitHub"
+     - 验证用户输入的仓库地址格式
+     - 如果用户跳过，记录并继续（可能仅使用本地缓存）
+
+3. **配置验证**
+   - 至少需要有一个可用的规则来源（本地缓存或 GitHub）
+   - 如果两者都不可用，提示用户："❌ 无法找到可用的规则来源，请配置本地缓存路径或 GitHub 仓库地址"
+- **规则文件命名规范**：
+  - Android 项目：`android-project.mdc`
+  - Flutter 项目：`flutter-project.mdc`（支持多平台，包含 Platform Channel 相关内容）
+  - Python 项目：`python-project.mdc`
+  - PHP 项目：`php-project.mdc`
+  - Kotlin 项目：`kotlin-project.mdc`
+  - Java 项目：`java-project.mdc`
+  - React Native 项目：`react-native-project.mdc`
+  - React 项目：`react-project.mdc`
+  - Vue 项目：`vue-project.mdc`
+  - Next.js 项目：`nextjs-project.mdc`
+  - TypeScript 项目：`typescript-project.mdc`
+  - Node.js 项目：`nodejs-project.mdc`
+  - iOS 项目：`ios-project.mdc`
+  - Spring Boot 项目：`spring-boot-project.mdc`
+
+## 项目规则文件位置
+
+- **项目规则目录**：`.cursor/rules/`
+- **文件命名**：使用描述性名称（如 `android-rules.mdc`）
+- **文件格式**：必须包含 frontmatter 元数据，标准格式如下：
+  
+  ---
+  alwaysApply: true
+  ---
+  
+  规则内容...
+  
+## 项目类型检测逻辑
+
+### 检测优先级
+
+当项目根目录的 `.cursor/rules/` 目录不存在或为空时，按以下优先级自动检测项目类型：
+
+1. **Flutter 项目**：
+   - 检测条件：存在 `pubspec.yaml`
+   - 规则文件：`flutter-project.mdc`
+   - 项目规则文件名：`flutter-rules.mdc`
+   - 说明：Flutter 项目天然支持多平台（Android、iOS、Web 等），Platform Channel 相关内容已包含在规则中
+
+2. **Android 项目**：
+   - 检测条件：存在 `settings.gradle` 或根目录 `build.gradle`，且不存在 `pubspec.yaml`
+   - 规则文件：`android-project.mdc`
+   - 项目规则文件名：`android-rules.mdc`
+
+3. **Python 项目**：
+   - 检测条件：存在 `requirements.txt` 或 `pyproject.toml`
+   - 规则文件：`python-project.mdc`
+   - 项目规则文件名：`python-rules.mdc`
+
+4. **PHP 项目**：
+   - 检测条件：存在 `composer.json`
+   - 规则文件：`php-project.mdc`
+   - 项目规则文件名：`php-rules.mdc`
+
+5. **Kotlin 项目**：
+   - 检测条件：主要代码文件为 `.kt` 文件
+   - 规则文件：`kotlin-project.mdc`
+   - 项目规则文件名：`kotlin-rules.mdc`
+
+6. **Java 项目**：
+   - 检测条件：主要代码文件为 `.java` 文件
+   - 规则文件：`java-project.mdc`
+   - 项目规则文件名：`java-rules.mdc`
+
+7. **React Native 项目**：
+   - 检测条件：存在 `package.json` 且依赖中包含 `react-native`
+   - 规则文件：`react-native-project.mdc`
+   - 项目规则文件名：`react-native-rules.mdc`
+
+8. **Next.js 项目**：
+   - 检测条件：存在 `package.json` 且依赖中包含 `next`，且存在 `next.config.js` 或 `next.config.ts`
+   - 规则文件：`nextjs-project.mdc`
+   - 项目规则文件名：`nextjs-rules.mdc`
+
+9. **React 项目**：
+    - 检测条件：存在 `package.json` 且依赖中包含 `react`，且不存在 `react-native` 和 `next`
+    - 规则文件：`react-project.mdc`
+    - 项目规则文件名：`react-rules.mdc`
+
+10. **Vue 项目**：
+    - 检测条件：存在 `package.json` 且依赖中包含 `vue`，且存在 `vue.config.js` 或 `vite.config.js`（Vue 3）
+    - 规则文件：`vue-project.mdc`
+    - 项目规则文件名：`vue-rules.mdc`
+
+11. **TypeScript 项目**：
+    - 检测条件：存在 `tsconfig.json`
+    - 规则文件：`typescript-project.mdc`
+    - 项目规则文件名：`typescript-rules.mdc`
+
+12. **Node.js 项目**：
+    - 检测条件：存在 `package.json` 且包含 `"type": "module"` 或 CommonJS 模块，且不是前端框架项目
+    - 规则文件：`nodejs-project.mdc`
+    - 项目规则文件名：`nodejs-rules.mdc`
+
+13. **Spring Boot 项目**：
+    - 检测条件：存在 `pom.xml`（Maven）且包含 `spring-boot-starter-parent`，或存在 `build.gradle`（Gradle）且包含 `spring-boot`
+    - 规则文件：`spring-boot-project.mdc`
+    - 项目规则文件名：`spring-boot-rules.mdc`
+
+14. **iOS 项目**：
+    - 检测条件：存在 `*.xcodeproj` 或 `*.xcworkspace` 文件，或存在 `Podfile`
+    - 规则文件：`ios-project.mdc`
+    - 项目规则文件名：`ios-rules.mdc`
+
+### 用户手动指定
+
+如果用户明确说明项目类型，优先使用用户指定的类型：
+
+- **识别关键词**：
+  - "这是 Flutter 项目" / "这是一个 Flutter 项目"
+  - "这是 Android 项目" / "这是一个 Android 项目"
+  - "这是 Python 项目" / "这是一个 Python 项目"
+  - "这是 PHP 项目" / "这是一个 PHP 项目"
+  - "这是 React 项目" / "这是 React Native 项目"
+  - "这是 Vue 项目" / "这是 Next.js 项目"
+  - "这是 TypeScript 项目" / "这是 Node.js 项目"
+  - "这是 iOS 项目" / "这是 Spring Boot 项目"
+  - 其他类似表述
+
+- **处理逻辑**：
+  - 忽略自动检测结果
+  - 直接使用用户指定的项目类型对应的规则文件
+  - 如果用户指定的类型不存在对应规则文件，提示用户
+
+### 规则文件命名映射
+
+项目规则文件从规则文件夹复制到项目时，使用以下命名映射：
+
+| 规则文件夹中的文件名 | 项目中的文件名 |
+|---------------------|---------------|
+| `flutter-project.mdc` | `flutter-rules.mdc` |
+| `android-project.mdc` | `android-rules.mdc` |
+| `python-project.mdc` | `python-rules.mdc` |
+| `php-project.mdc` | `php-rules.mdc` |
+| `kotlin-project.mdc` | `kotlin-rules.mdc` |
+| `java-project.mdc` | `java-rules.mdc` |
+| `react-native-project.mdc` | `react-native-rules.mdc` |
+| `react-project.mdc` | `react-rules.mdc` |
+| `vue-project.mdc` | `vue-rules.mdc` |
+| `nextjs-project.mdc` | `nextjs-rules.mdc` |
+| `typescript-project.mdc` | `typescript-rules.mdc` |
+| `nodejs-project.mdc` | `nodejs-rules.mdc` |
+| `ios-project.mdc` | `ios-rules.mdc` |
+| `spring-boot-project.mdc` | `spring-boot-rules.mdc` |
+
+## 自动管理流程
+
+### 场景 1：找到匹配的规则文件（首次导入）
+
+当在规则文件夹中找到对应项目类型的规则文件，且项目的 `.cursor/rules/` 目录不存在或为空时：
+
+1. 读取规则文件内容（包含完整的 frontmatter）
+2. 在项目根目录创建 `.cursor/rules/` 目录（如果不存在）
+3. 使用标准命名复制规则文件到项目 `.cursor/rules/{名称}.mdc`（如 `flutter-rules.mdc`）
+4. 提示用户："✅ 已从规则文件夹导入 [项目类型] 项目规则到 `.cursor/rules/{名称}.mdc`"
+
+### 场景 2：未找到匹配的规则文件
+
+当在规则文件夹中未找到对应项目类型的规则文件时：
+1. 根据项目类型创建新的规则模板
+   - 包含完整的 frontmatter（`---\nalwaysApply: true\n---`）
+   - 包含项目特定的代码风格、架构模式、依赖管理等规范
+   - 参考已创建的示例规则文件格式
+2. 保存新规则到规则文件夹（使用对应的文件名，如 `android-project.mdc`）
+3. 在项目根目录创建 `.cursor/rules/` 目录（如果不存在）
+4. 使用标准命名复制到当前项目 `.cursor/rules/{名称}.mdc`
+5. 提示用户："✅ 已创建新的 [项目类型] 项目规则模板，保存到规则文件夹并导入到 `.cursor/rules/{名称}.mdc`"
+
+### 场景 3：项目已有规则文件（需要冲突检测）
+
+当 `.cursor/rules/` 目录已存在且不为空时：
+
+**必须执行冲突检测流程**（参考 `rules-management/rules-conflict-management.mdc`）：
+
+1. **扫描现有规则文件**
+   - 列出所有 `.mdc` 文件
+   - 识别文件类型：本项目规则、通用规则、用户自定义规则
+
+2. **检测用户自定义规则**
+   - 识别不属于规则库的文件
+   - **这些文件绝对不触碰**
+
+3. **检测规则文件是否被修改**
+   - 对比规则库版本和项目版本（通过内容哈希或内容对比）
+   - 识别哪些文件被用户修改过
+
+4. **生成冲突报告并询问用户**
+   - 展示冲突检测报告
+   - 对于未修改的文件：直接更新
+   - 对于已修改的文件：询问用户处理方式
+     * 选项 A：覆盖还原（恢复到规则库版本）
+     * 选项 B：保留用户版本（不更新）
+     * 选项 C：智能合并（在用户修改基础上合并更新）
+   - 对于用户自定义规则：跳过，不触碰
+
+5. **执行用户选择并完成导入**
+
+详细流程请参考 `rules-management/rules-conflict-management.mdc` 文件。
+
+## 执行时机
+
+- **首次打开项目时**：自动检查 `.cursor/rules/` 目录，如果不存在或为空则执行自动管理流程
+- **用户主动请求时**：用户明确要求"生成项目规则"、"导入项目规则"、"创建项目规则"或"导入规则"时执行
+- **用户指定项目类型时**：用户明确说明项目类型（如"这是 Flutter 项目"）时执行
+- **项目类型变更时**：当检测到项目类型发生变化时（如从纯 Android 变为混合项目），可以提示用户是否需要更新规则
+
+## 规则来源
+
+### 优先级策略
+
+1. **优先从本地缓存拉取**
+   - 本地缓存路径：`C:\Users\Administrator\Desktop\cursor-rules`
+   - 如果本地存在规则文件，直接使用
+
+2. **GitHub 作为备用**
+   - GitHub 仓库：`https://github.com/yfcyfc123234/cursor-rules`
+   - 默认分支：`main`
+   - 如果本地不存在，从 GitHub 拉取
+
+3. **自动更新缓存**
+   - 从 GitHub 拉取成功后，自动更新本地缓存
+
+## 规则模板内容建议
+
+根据项目类型创建规则模板时，应该包含以下内容：
+- **项目类型说明**：明确项目类型和主要技术栈
+- **代码风格规范**：命名规范、代码格式、注释规范等
+- **架构模式**：推荐的架构模式和代码组织方式
+- **依赖管理**：依赖管理工具和常用库
+- **错误处理**：异常处理和日志记录规范
+- **Git 工作流**：Git 相关的规范和自动操作
+- **其他项目特定规范**：如性能优化、安全要求、国际化等
+
+## 注意事项
+
+- 规则文件夹如果不存在，先自动创建目录
+- 所有规则文件必须包含 frontmatter 元数据，否则可能无法正确加载
